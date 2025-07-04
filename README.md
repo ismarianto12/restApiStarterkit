@@ -1,4 +1,3 @@
-//buatkan saya read me nya
 # REST API Documentation
 
 ## Overview
