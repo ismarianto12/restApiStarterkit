@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"golangRest/src/database"
 	"golangRest/src/models"
 
 	"gorm.io/gorm"
@@ -9,20 +8,18 @@ import (
 
 // UserRepository provides methods to interact with the user database
 type UserRepository struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 // NewUserRepository creates a new UserRepository instance
-func NewUserRepository() *UserRepository {
-	return &UserRepository{
-		db: database.DB,
-	}
+func NewUserRepository(db *gorm.DB) *UserRepository {
+	return &UserRepository{DB: db}
 }
 
 // GetUser retrieves a user by ID
 func (repo *UserRepository) GetUser(id uint) (*models.UserMode, error) {
 	var user models.UserMode
-	if err := repo.db.First(&user, id).Error; err != nil {
+	if err := repo.DB.First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -30,7 +27,7 @@ func (repo *UserRepository) GetUser(id uint) (*models.UserMode, error) {
 
 // CreateUser creates a new user in the database
 func (repo *UserRepository) CreateUser(user *models.UserMode) error {
-	if err := repo.db.Create(user).Error; err != nil {
+	if err := repo.DB.Create(user).Error; err != nil {
 		return err
 	}
 	return nil
@@ -38,7 +35,7 @@ func (repo *UserRepository) CreateUser(user *models.UserMode) error {
 
 // UpdateUser updates an existing user in the database
 func (repo *UserRepository) UpdateUser(user *models.UserMode) error {
-	if err := repo.db.Save(user).Error; err != nil {
+	if err := repo.DB.Save(user).Error; err != nil {
 		return err
 	}
 	return nil
@@ -46,7 +43,7 @@ func (repo *UserRepository) UpdateUser(user *models.UserMode) error {
 
 // DeleteUser deletes a user from the database
 func (repo *UserRepository) DeleteUser(id uint) error {
-	if err := repo.db.Delete(&models.UserMode{}, id).Error; err != nil {
+	if err := repo.DB.Delete(&models.UserMode{}, id).Error; err != nil {
 		return err
 	}
 	return nil
@@ -54,7 +51,7 @@ func (repo *UserRepository) DeleteUser(id uint) error {
 
 func (repo *UserRepository) GetAllUsers() ([]models.UserMode, error) {
 	var users []models.UserMode
-	if err := repo.db.Find(&users).Error; err != nil {
+	if err := repo.DB.Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -64,7 +61,7 @@ func (repo *UserRepository) GetAllUsers() ([]models.UserMode, error) {
 func (repo *UserRepository) GetUserByEmail(email string) (*models.UserMode,
 	error) {
 	var user models.UserMode
-	if err := repo.db.Where("email = ?", email).First(&user).Error; err != nil {
+	if err := repo.DB.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

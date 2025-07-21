@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"golangRest/src/database" // ✅ agar bisa akses database.DB
 	"golangRest/src/models"
 	"golangRest/src/repository"
 	"net/http"
@@ -12,15 +13,12 @@ type UserController struct {
 	repo *repository.UserRepository
 }
 
-// NewUserController creates a new UserController instance
 func NewUserController() *UserController {
-	return &UserController{
-		repo: repository.NewUserRepository(),
-	}
+	repo := repository.NewUserRepository(database.DB) // ✅ kirim database.DB sebagai argumen
+	return &UserController{repo: repo}
 }
 
 func (uc *UserController) GetAllUsers(c *gin.Context) {
-	// Retrieve all users from the repository
 	users, err := uc.repo.GetAllUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
@@ -29,7 +27,6 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// CreateUser handles POST requests for creating a new user
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.UserMode
 	if err := c.ShouldBindJSON(&user); err != nil {
