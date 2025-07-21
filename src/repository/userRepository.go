@@ -6,17 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// UserRepository provides methods to interact with the user database
 type UserRepository struct {
 	DB *gorm.DB
 }
 
-// NewUserRepository creates a new UserRepository instance
 func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
-
-// GetUser retrieves a user by ID
 func (repo *UserRepository) GetUser(id uint) (*models.UserMode, error) {
 	var user models.UserMode
 	if err := repo.DB.First(&user, id).Error; err != nil {
@@ -25,7 +21,6 @@ func (repo *UserRepository) GetUser(id uint) (*models.UserMode, error) {
 	return &user, nil
 }
 
-// CreateUser creates a new user in the database
 func (repo *UserRepository) CreateUser(user *models.UserMode) error {
 	if err := repo.DB.Create(user).Error; err != nil {
 		return err
@@ -33,7 +28,6 @@ func (repo *UserRepository) CreateUser(user *models.UserMode) error {
 	return nil
 }
 
-// UpdateUser updates an existing user in the database
 func (repo *UserRepository) UpdateUser(user *models.UserMode) error {
 	if err := repo.DB.Save(user).Error; err != nil {
 		return err
