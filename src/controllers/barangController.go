@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,9 +22,40 @@ func NewBarangController() *BarangController {
 	return &BarangController{}
 }
 
-// Handler untuk GET /barang/list
+func (bc *BarangController) UploadDfile(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no file"})
+	}
+
+	allowedExts := []string{".jpg", ".jpeg", ".png", ".pdf"}
+	fileExt := strings.ToLower(filepath.Ext(file.Filename))
+	isValid := false
+	for _, ext := range allowedExts {
+		if fileExt == ext {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("File extension '%s' is not allowed", fileExt),
+		})
+		return
+	}
+
+	// file.ex
+	dst := filepath.Join("uploads", filepath.Base(file.Filename))
+	if err := c.SaveUploadedFile(file, dst); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to save the file"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully!", "filename": file.Filename})
+
+}
+
 func (bc *BarangController) GetAllData(c *gin.Context) {
-	// Data statis (hardcoded)
 	barangList := []Barang{
 		{ID: 1, Name: "Laptop", Price: 10000000, Stock: 10},
 		{ID: 2, Name: "Mouse", Price: 150000, Stock: 50},

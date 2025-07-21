@@ -34,6 +34,7 @@ func main() {
 
 	barangRoutes := r.Group("/barang")
 	{
+		barangRoutes.POST("/upload", barangController.UploadDfile)
 		barangRoutes.GET("/list", barangController.GetAllData)
 		barangRoutes.POST("/create", barangController.CreateData)
 		barangRoutes.PUT("/update/:id", barangController.UpdateData)
