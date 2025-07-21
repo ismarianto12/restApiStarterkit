@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"golangRest/src/database" // ✅ agar bisa akses database.DB
+	"golangRest/src/database"
 	"golangRest/src/models"
 	"golangRest/src/repository"
 	"net/http"
@@ -11,6 +11,12 @@ import (
 
 type UserController struct {
 	repo *repository.UserRepository
+}
+
+type UserResponse struct {
+	Data    []models.UserMode `json:"data"`
+	Status  string            `json:"status"`
+	Message string            `json:"message"`
 }
 
 func NewUserController() *UserController {
@@ -24,11 +30,17 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
 		return
 	}
-	c.JSON(http.StatusOK, users)
+	custom := UserResponse{
+		Data:    users,
+		Status:  "200",
+		Message: "data berhasil",
+	}
+	c.JSON(http.StatusOK, custom)
 }
 
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.UserMode
+
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return

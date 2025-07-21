@@ -4,13 +4,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// UserMode represents the user model
 type UserMode struct {
 	gorm.Model
-	ID       uint   `gorm:"primaryKey"`
-	Name     string `gorm:"not null"`
-	Email    string `gorm:"unique;not null"`
-	Password string `gorm:"not null"`
+	ID       uint   `gorm:"primaryKey",json:"id"`
+	Name     string `gorm:"not null",json:"name"`
+	Email    string `gorm:"unique;not null",json:"email"`
+	Password string `gorm:"not null",json:"password"`
 }
 
 // TableName returns the name of the table in the database
