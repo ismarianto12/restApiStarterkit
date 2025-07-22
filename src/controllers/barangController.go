@@ -6,11 +6,17 @@ import (
 	"golangRest/src/models"
 	"golangRest/src/repository"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
+
+// type RequestParams struct {
+// 	Total int `json:"`
+// }
 
 type Barang struct {
 	ID    uint   `json:"id"`
@@ -73,13 +79,20 @@ func (bc *BarangController) GetAllData(c *gin.Context) {
 	})
 }
 
-func (ptk *BarangController) GetSemuaKontol(c *gin.Context, *models.BarangModel) {
-	var barang models.BarangModel
-	if  barang,err := c.ShouldBindJSON(barang) == nil {
-
+func (ptk *BarangController) GetSemuaKontol(c *gin.Context) {
+	// var barang models.BarangModel
+	// if  barang,err := c.ShouldBindJSON(barang) != nil {
+	// }
+	err := godotenv.Load()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
+		return
 	}
-
-
+	appversion := os.Getenv("APP_VERSION")
+	if c.Query("page") == "" || c.Query("total") == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": appversion})
+		return
+	}
 	barang, err := ptk.repo.GetAllBarang(2)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

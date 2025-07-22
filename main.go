@@ -12,6 +12,10 @@ import (
 	"golangRest/src/controllers"
 	"golangRest/src/database"
 	"golangRest/src/utils"
+	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,6 +31,20 @@ func main() {
 	purchasingController := controllers.NewPurchasingControllerInstance()
 	userController := controllers.NewUserController()
 
+	r.GET("/", func(c *gin.Context) {
+
+		err := godotenv.Load()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"app":         os.Getenv("APP_VERSION"),
+			"restfullAPi": "version 1",
+			"data":        "v1",
+		})
+	})
 	userRoutes := r.Group("/users")
 	{
 		userRoutes.GET("/list", userController.GetAllUsers)
