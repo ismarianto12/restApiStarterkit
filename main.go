@@ -11,6 +11,7 @@ package main
 import (
 	"golangRest/src/controllers"
 	"golangRest/src/database"
+	"golangRest/src/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	r.Use(utils.InterCeptor())
 	barangController := controllers.NewBarangController()
 	purchasingController := controllers.NewPurchasingControllerInstance()
 	userController := controllers.NewUserController()
@@ -35,8 +37,8 @@ func main() {
 	barangRoutes := r.Group("/barang")
 	{
 		barangRoutes.POST("/upload", barangController.UploadDfile)
-		barangRoutes.GET("/list", barangController.GetAllData)
-		barangRoutes.POST("/create", barangController.CreateData)
+		barangRoutes.GET("/list", barangController.GetSemuaKontol)
+		barangRoutes.POST("/create", barangController.Store)
 		barangRoutes.PUT("/update/:id", barangController.UpdateData)
 	}
 	purcahsing := r.Group("/purhcasing")

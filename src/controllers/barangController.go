@@ -2,6 +2,9 @@ package controllers
 
 import (
 	"fmt"
+	"golangRest/src/database"
+	"golangRest/src/models"
+	"golangRest/src/repository"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -16,10 +19,13 @@ type Barang struct {
 	Stock int    `json:"stock"`
 }
 
-type BarangController struct{} // Tidak perlu repository
+type BarangController struct {
+	repo *repository.BarangRepository
+}
 
 func NewBarangController() *BarangController {
-	return &BarangController{}
+	repo := repository.NewBarangRepository(database.DB)
+	return &BarangController{repo: repo}
 }
 
 func (bc *BarangController) UploadDfile(c *gin.Context) {
@@ -43,7 +49,6 @@ func (bc *BarangController) UploadDfile(c *gin.Context) {
 		})
 		return
 	}
-
 	// file.ex
 	dst := filepath.Join("uploads", filepath.Base(file.Filename))
 	if err := c.SaveUploadedFile(file, dst); err != nil {
@@ -66,6 +71,43 @@ func (bc *BarangController) GetAllData(c *gin.Context) {
 		"success": true,
 		"data":    barangList,
 	})
+}
+
+func (ptk *BarangController) GetSemuaKontol(c *gin.Context, *models.BarangModel) {
+	var barang models.BarangModel
+	if  barang,err := c.ShouldBindJSON(barang) == nil {
+
+	}
+
+
+	barang, err := ptk.repo.GetAllBarang(2)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "bangsaat error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data": barang, "message": "success",
+	})
+
+}
+
+func (ptk *BarangController) Store(c *gin.Context) {
+	var barang models.BarangModel
+	// c.BindJSON(barang)
+	if err := c.ShouldBindJSON(&barang); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "istnot json data"})
+		return
+	}
+	ptk.repo.InsertData(&barang)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    barang,
+	})
+
 }
 
 // Handler untuk POST /barang/create

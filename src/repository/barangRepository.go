@@ -15,7 +15,7 @@ func NewBarangRepository(db *gorm.DB) *BarangRepository {
 	return &BarangRepository{DB: db}
 }
 
-func (repo *BarangRepository) getAllBarang(page int) (*models.BarangModel, error) {
+func (repo *BarangRepository) GetAllBarang(page int) (*models.BarangModel, error) {
 	fmt.Println(`$page`)
 	var barangModel models.BarangModel
 	if err := repo.DB.Exec("select * from barang").Error; err != nil {
@@ -23,7 +23,7 @@ func (repo *BarangRepository) getAllBarang(page int) (*models.BarangModel, error
 	}
 	return &barangModel, nil
 }
-func (repo *BarangRepository) insertData(barang *models.BarangModel) error {
+func (repo *BarangRepository) InsertData(barang *models.BarangModel) error {
 	fmt.Println("insert")
 	if err := repo.DB.Save(barang).Error; err != nil {
 		return err
