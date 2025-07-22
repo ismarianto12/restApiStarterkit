@@ -1,9 +1,9 @@
 package models
 
 type BarangModel struct {
-	Id         int     `json:"id" gorm:"column:id;primaryKey"`
-	Kode       string  `json:"kode" gorm:"column:kode"`
-	Nama       string  `json:"nama" gorm:"column:nama"`
+	Id         int     `json:"id"  gorm:"column:id;primaryKey"`
+	Kode       string  `json:"kode" binding:"required" gorm:"column:kode"`
+	Nama       string  `json:"nama" binding:"required" gorm:"column:nama"`
 	KategoryId int     `json:"kategory_id" gorm:"column:kategory_id"`
 	Deskripsi  string  `json:"deskripsi" gorm:"column:deskripsi"`
 	Gambar     string  `json:"gambar" gorm:"column:gambar"`

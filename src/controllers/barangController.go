@@ -113,7 +113,7 @@ func (pt *BarangController) UpdateData(c *gin.Context) {
 	existingBarang.Deskripsi = barang.Deskripsi
 	existingBarang.Gambar = barang.Gambar
 
-	if err := pt.repo.DB.Find(&barang, idInt).Save(barang).Error; err != nil {
+	if err := pt.repo.DB.Find(&barang, idInt).Save(existingBarang).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "gagal update",
 		})
