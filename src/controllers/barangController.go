@@ -8,15 +8,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
-
-// type RequestParams struct {
-// 	Total int `json:"`
-// }
 
 type Barang struct {
 	ID    uint   `json:"id"`
@@ -65,6 +62,70 @@ func (bc *BarangController) UploadDfile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully!", "filename": file.Filename})
 
 }
+func (ptk *BarangController) Delet(c *gin.Context) {
+	id := c.Param("id")
+	idF, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
+		return
+	}
+	fmt.Println("Pantek %s", idF)
+	err = ptk.repo.DB.Exec("delete from barang where id = ? ", idF).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"messages": "berhasil menghapus data barang"})
+}
+
+func (pt *BarangController) UpdateData(c *gin.Context) {
+
+	var barang models.BarangModel
+
+	if err := c.ShouldBindJSON(&barang); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "gagal payload",
+			"data":    nil,
+		})
+		return
+	}
+
+	idStr := c.Param("id")
+	idInt, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "id tidak valid",
+		})
+		return
+	}
+
+	var existingBarang models.BarangModel
+	if err := pt.repo.DB.First(&existingBarang, idInt).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "barang tidak ditemukan",
+		})
+		return
+	}
+
+	existingBarang.Kode = barang.Kode
+	existingBarang.Nama = barang.Nama
+	existingBarang.KategoryId = barang.KategoryId
+	existingBarang.Deskripsi = barang.Deskripsi
+	existingBarang.Gambar = barang.Gambar
+
+	if err := pt.repo.DB.Find(&barang, idInt).Save(barang).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "gagal update",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "berhasil update",
+		"data":    existingBarang,
+	})
+
+}
 
 func (bc *BarangController) GetAllData(c *gin.Context) {
 	barangList := []Barang{
@@ -80,9 +141,8 @@ func (bc *BarangController) GetAllData(c *gin.Context) {
 }
 
 func (ptk *BarangController) GetSemuaKontol(c *gin.Context) {
-	// var barang models.BarangModel
-	// if  barang,err := c.ShouldBindJSON(barang) != nil {
-	// }
+
+	var barang []models.BarangModel
 	err := godotenv.Load()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
@@ -93,15 +153,16 @@ func (ptk *BarangController) GetSemuaKontol(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": appversion})
 		return
 	}
-	barang, err := ptk.repo.GetAllBarang(2)
-	if err != nil {
+	if err := ptk.repo.DB.Raw("select * from barang").Scan(&barang).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "bangsaat error",
 		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"data": barang, "message": "success",
+		"data":     barang,
+		"status":   "ok",
+		"messages": "success ok",
 	})
 
 }
@@ -131,11 +192,35 @@ func (bc *BarangController) CreateData(c *gin.Context) {
 	})
 }
 
-// Handler untuk PUT /barang/update/:id
-func (bc *BarangController) UpdateData(c *gin.Context) {
+func (ptk *BarangController) GetBarangByid(c *gin.Context) {
+	var barang models.BarangModel
 	id := c.Param("id")
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Data dengan ID " + id + " berhasil diupdate (simulasi)",
+	idIht, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "ID tidak valid",
+		})
+		return
+	}
+	if err := ptk.repo.DB.First(&barang, idIht).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data":    barang,
+			"message": "successfull data",
+		})
+		return
+	}
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"data":    barang,
+		"message": "successfull data",
 	})
+
 }
+
+// chec untuk PUT /barang/update/:id
+// func (bc *BarangController) UpdateData(c *gin.Context) {
+// 	id := c.Param("id")
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"success": true,
+// 		"message": "Data dengan ID " + id + " berhasil diupdate (simulasi)",
+// 	})
+// }

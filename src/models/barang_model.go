@@ -1,19 +1,15 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
-
 type BarangModel struct {
-	gorm.Model
-	Id         string `gorm:"primaryKey",json:"id`
-	Kode       string `gorm:"primaryKey",json:"kode`
-	Nama       string `gorm:"primaryKey",json:"nama`
-	KategoriId string `gorm:"primaryKey",json:"kategory_id`
-	Deskripsi  string `gorm:"primaryKey",json:"deskripsi`
-	Gambar     string `gorm:"primaryKey",json:"gambar`
-	created_at string `gorm:"primaryKey",json:"createdAt`
-	updated_at string `gorm:"primaryKey",json:"updatedAt`
+	Id         int     `json:"id" gorm:"column:id;primaryKey"`
+	Kode       string  `json:"kode" gorm:"column:kode"`
+	Nama       string  `json:"nama" gorm:"column:nama"`
+	KategoryId int     `json:"kategory_id" gorm:"column:kategory_id"`
+	Deskripsi  string  `json:"deskripsi" gorm:"column:deskripsi"`
+	Gambar     string  `json:"gambar" gorm:"column:gambar"`
+	CreatedAt  string  `json:"created_at" gorm:"column:created_at"`
+	UpdatedAt  string  `json:"updated_at" gorm:"column:updated_at"`
+	DeletedAt  *string `json:"deleted_at" gorm:"column:deleted_at"`
 }
 
 func (BarangModel) TableName() string {

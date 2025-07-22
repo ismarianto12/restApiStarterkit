@@ -15,9 +15,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
-
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -32,7 +31,6 @@ func main() {
 	userController := controllers.NewUserController()
 
 	r.GET("/", func(c *gin.Context) {
-
 		err := godotenv.Load()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
@@ -43,6 +41,12 @@ func main() {
 			"app":         os.Getenv("APP_VERSION"),
 			"restfullAPi": "version 1",
 			"data":        "v1",
+		})
+	})
+	r.NoRoute(func(ctx *gin.Context) {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"page":     "not found",
+			"response": "ada",
 		})
 	})
 	userRoutes := r.Group("/users")
@@ -56,8 +60,11 @@ func main() {
 	{
 		barangRoutes.POST("/upload", barangController.UploadDfile)
 		barangRoutes.GET("/list", barangController.GetSemuaKontol)
+		barangRoutes.GET("/show/:id", barangController.GetBarangByid)
+
 		barangRoutes.POST("/create", barangController.Store)
 		barangRoutes.PUT("/update/:id", barangController.UpdateData)
+		barangRoutes.DELETE("/delete/:id", barangController.Delet)
 	}
 	purcahsing := r.Group("/purhcasing")
 	{

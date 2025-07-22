@@ -15,14 +15,24 @@ func NewBarangRepository(db *gorm.DB) *BarangRepository {
 	return &BarangRepository{DB: db}
 }
 
-func (repo *BarangRepository) GetAllBarang(page int) (*models.BarangModel, error) {
-	fmt.Println(`$page`)
-	var barangModel models.BarangModel
-	if err := repo.DB.Exec("select * from barang").Error; err != nil {
+// func (repo *BarangRepository) GetAllBarang(page int) (*models.BarangModel, error) {
+// 	fmt.Println(`$page`)
+// 	var barangModel models.BarangModel
+// 	if err := repo.DB.Find("barang").Error; err != nil {
+
+// 		return nil, err
+// 	}
+// 	return &barangModel, nil
+// }
+
+func (rpcp *BarangRepository) GetAllBarang() (*models.BarangModel, error) {
+	var barang models.BarangModel
+	if err := rpcp.DB.Exec("select * from barang").Error; err != nil {
 		return nil, err
 	}
-	return &barangModel, nil
+	return &barang, nil
 }
+
 func (repo *BarangRepository) InsertData(barang *models.BarangModel) error {
 	fmt.Println("insert")
 	if err := repo.DB.Save(barang).Error; err != nil {
@@ -48,4 +58,13 @@ func (repo *BarangRepository) Update(id int, newData *models.BarangModel) (*mode
 	}
 
 	return &barang, nil
+}
+
+func (repo *BarangRepository) GetById(id int) (*models.BarangModel, error) {
+	var barang models.BarangModel
+	if err := repo.DB.Find("id", id).Error; err != nil {
+		return nil, err
+	}
+	return &barang, nil
+
 }

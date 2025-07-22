@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 type CustomResponse struct {
 	gorm.Model
 
-	data     string `json:data`
-	httpcode string `json:httocde`
-	message  string `json:data`
+	Data     interface{} `json:"data"`
+	Httpcode int         `json:httocde`
+	Message  string      `json:data`
 }
