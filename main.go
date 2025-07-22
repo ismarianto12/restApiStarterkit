@@ -69,7 +69,9 @@ func main() {
 	purcahsing := r.Group("/purhcasing")
 	{
 		purcahsing.GET("/list", purchasingController.GetAllData)
-		purcahsing.POST("/create", purchasingController.GetAllData)
+		purcahsing.POST("/create", purchasingController.Store)
+		purcahsing.GET("/show/:id", purchasingController.Show)
+
 	}
 
 	r.Run(":8080")

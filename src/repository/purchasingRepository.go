@@ -13,15 +13,15 @@ type PurcashingRepository struct {
 func NewPurcashingRepository(db *gorm.DB) *PurcashingRepository {
 	return &PurcashingRepository{DB: db}
 }
-func (rpcp *PurcashingRepository) GetAll() (*models.PurcahsingModel, error) {
-	var purchasing models.PurcahsingModel
-	if err := rpcp.DB.Exec("select pemeriksa,facture_code,deleted_at from purchasing").Error; err != nil {
+func (rpcp *PurcashingRepository) GetAll() ([]models.PurcahsingModel, error) {
+	var purchasing []models.PurcahsingModel
+	if err := rpcp.DB.Find(&purchasing).Error; err != nil {
 		return nil, err
 	}
-	return &purchasing, nil
+	return purchasing, nil
 }
 func (rpc *PurcashingRepository) Create(purchasing *models.PurcahsingModel) error {
-	if err := rpc.DB.Create(purchasing).Error; err != nil {
+	if err := rpc.DB.Create(&purchasing).Error; err != nil {
 		return err
 	}
 	return nil

@@ -86,3 +86,10 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## Contact
 For questions or support, please contact [ismarianto@example.com](mailto:ismarianto@example.com).
+
+
+
+///exmaple usage for build
+GOOS=linux GOARCH=amd64 go build -o restFullApp
+GOOS=darwin GOARCH=arm64 go build -o myapp
+GOOS=darwin GOARCH=amd64 go build -o restFullApp main.go
