@@ -49,11 +49,15 @@ func main() {
 			"response": "ada",
 		})
 	})
+	r.POST("/login", userController.Login)
 	userRoutes := r.Group("/users")
 	{
 		userRoutes.GET("/list", userController.GetAllUsers)
 		userRoutes.POST("/", userController.CreateUser)
+		userRoutes.POST("/create", userController.CreateUser)
 		userRoutes.GET("/:email", userController.GetUserByEmail)
+		userRoutes.GET("/show/:id", userController.ShowUser)
+
 	}
 
 	barangRoutes := r.Group("/barang")

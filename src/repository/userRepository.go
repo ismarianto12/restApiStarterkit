@@ -60,3 +60,11 @@ func (repo *UserRepository) GetUserByEmail(email string) (*models.UserMode,
 	}
 	return &user, nil
 }
+func (rp *UserRepository) LoginAuth(username string, password string) (*models.UserMode, error) {
+	var user models.UserMode
+	if err := rp.DB.Where("email = ? and password = ?", username, password).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+
+}

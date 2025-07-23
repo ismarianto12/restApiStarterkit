@@ -26,7 +26,13 @@ func (rpc *PurcashingRepository) Create(purchasing *models.PurcahsingModel) erro
 	}
 	return nil
 }
-func (rpc *PurcashingRepository) upDateData(id uint) (purchasing *models.PurcahsingModel) {
+func (rpc *PurcashingRepository) UpDateData(id uint) (purchasing *models.PurcahsingModel) {
 	rpc.DB.Find(id).Save(purchasing)
+	return
+}
+
+func (rpc *PurcashingRepository) ShowDetail(id int) (pp *models.PurcahsingModel) {
+	var cp models.PurcahsingModel
+	rpc.DB.Find(&id).Scan(&cp)
 	return
 }

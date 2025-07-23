@@ -1,12 +1,17 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"golangRest/src/database"
 	"golangRest/src/models"
 	"golangRest/src/repository"
+	"golangRest/src/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type UserController struct {
@@ -20,7 +25,7 @@ type UserResponse struct {
 }
 
 func NewUserController() *UserController {
-	repo := repository.NewUserRepository(database.DB) // ✅ kirim database.DB sebagai argumen
+	repo := repository.NewUserRepository(database.DB)
 	return &UserController{repo: repo}
 }
 
@@ -38,6 +43,28 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, custom)
 }
 
+func (ptj *UserController) ShowUser(c *gin.Context) {
+	var user models.UserMode
+	id := c.Param("id")
+	fid, err := strconv.Atoi(id)
+	fmt.Print(fid)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "id": fid})
+		return
+	}
+
+	erp := ptj.repo.DB.Where("id", fid).First(&user)
+	if erp != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "data kosong"})
+			return
+		}
+
+	}
+	c.JSON(http.StatusOK, gin.H{"data": user, "message": "data berhasil di temukan"})
+
+}
+
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.UserMode
 
@@ -45,6 +72,14 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
+
+	hasHedPassword, err := utils.Haspassword(user.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ecrypt data"})
+		return
+	}
+	user.Password = hasHedPassword
+
 	if err := uc.repo.CreateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
@@ -60,4 +95,23 @@ func (uc *UserController) GetUserByEmail(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, user)
+}
+
+func (auth *UserController) Login(c *gin.Context) {
+	var user models.UserMode
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Request tidak valid"})
+		return
+	}
+	resp, err := auth.repo.LoginAuth(user.Username, user.Password)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User tidak ditemukan"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Terjadi kesalahan saat login"})
+		}
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"error": "User tidak ditemukan", "username": resp.Username})
+
 }
