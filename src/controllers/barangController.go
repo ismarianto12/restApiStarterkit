@@ -69,7 +69,7 @@ func (ptk *BarangController) Delet(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
 		return
 	}
-	fmt.Println("Pantek %s", idF)
+	// fmt.Println("Pantek %s", idF)
 	err = ptk.repo.DB.Exec("delete from barang where id = ? ", idF).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})

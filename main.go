@@ -29,6 +29,7 @@ func main() {
 	barangController := controllers.NewBarangController()
 	purchasingController := controllers.NewPurchasingControllerInstance()
 	userController := controllers.NewUserController()
+	suplierController := controllers.NewSuplierControllerInstance()
 
 	r.GET("/", func(c *gin.Context) {
 		err := godotenv.Load()
@@ -74,6 +75,13 @@ func main() {
 		purcahsing.GET("/list", purchasingController.GetAllData)
 		purcahsing.POST("/create", purchasingController.Store)
 		purcahsing.GET("/show/:id", purchasingController.Show)
+
+	}
+	suplier := r.Group("/suplier")
+	{
+		suplier.GET("/list", suplierController.Index)
+		suplier.POST("/create", suplierController.CreateData)
+		// suplier.GET("/show/:id", suplierController.Show)
 
 	}
 
