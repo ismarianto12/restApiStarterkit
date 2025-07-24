@@ -81,7 +81,9 @@ func main() {
 	{
 		suplier.GET("/list", suplierController.Index)
 		suplier.POST("/create", suplierController.CreateData)
-		// suplier.GET("/show/:id", suplierController.Show)
+		suplier.POST("/update/:id", suplierController.UpdateData)
+		suplier.GET("/show/:id", suplierController.ShowData)
+		suplier.GET("/delete/:id", suplierController.DeleteData)
 
 	}
 
