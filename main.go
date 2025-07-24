@@ -53,7 +53,7 @@ func main() {
 	r.POST("/login", userController.Login)
 	userRoutes := r.Group("/users")
 	{
-		userRoutes.GET("/list", utils.AuthMidleware, userController.GetAllUsers)
+		userRoutes.GET("/list", utils.AuthMiddleware, userController.GetAllUsers)
 		userRoutes.POST("/", userController.CreateUser)
 		userRoutes.POST("/create", userController.CreateUser)
 		userRoutes.GET("/:email", userController.GetUserByEmail)
@@ -62,29 +62,28 @@ func main() {
 
 	barangRoutes := r.Group("/barang")
 	{
-		barangRoutes.POST("/upload", utils.AuthMidleware, barangController.UploadDfile)
-		barangRoutes.GET("/list", barangController.GetSemuaKontol)
-		barangRoutes.GET("/show/:id", barangController.GetBarangByid)
+		barangRoutes.POST("/upload", utils.AuthMiddleware, barangController.UploadDfile)
+		barangRoutes.GET("/list", utils.AuthMiddleware, barangController.GetSemuaKontol)
+		barangRoutes.GET("/show/:id", utils.AuthMiddleware, barangController.GetBarangByid)
 
-		barangRoutes.POST("/create", barangController.Store)
-		barangRoutes.PUT("/update/:id", barangController.UpdateData)
-		barangRoutes.DELETE("/delete/:id", barangController.Delet)
+		barangRoutes.POST("/create", utils.AuthMiddleware, barangController.Store)
+		barangRoutes.PUT("/update/:id", utils.AuthMiddleware, barangController.UpdateData)
+		barangRoutes.DELETE("/delete/:id", utils.AuthMiddleware, barangController.Delet)
 	}
 	purcahsing := r.Group("/purhcasing")
 	{
-		purcahsing.GET("/list", purchasingController.GetAllData)
-		purcahsing.POST("/create", purchasingController.Store)
-		purcahsing.GET("/show/:id", purchasingController.Show)
+		purcahsing.GET("/list", utils.AuthMiddleware, purchasingController.GetAllData)
+		purcahsing.POST("/create", utils.AuthMiddleware, purchasingController.Store)
+		purcahsing.GET("/show/:id", utils.AuthMiddleware, purchasingController.Show)
 
 	}
 	suplier := r.Group("/suplier")
 	{
-		suplier.GET("/list", suplierController.Index)
-		suplier.POST("/create", suplierController.CreateData)
-		suplier.POST("/update/:id", suplierController.UpdateData)
-		suplier.GET("/show/:id", suplierController.ShowData)
-		suplier.GET("/delete/:id", suplierController.DeleteData)
-
+		suplier.GET("/list", utils.AuthMiddleware, suplierController.Index)
+		suplier.POST("/create", utils.AuthMiddleware, suplierController.CreateData)
+		suplier.POST("/update/:id", utils.AuthMiddleware, suplierController.UpdateData)
+		suplier.GET("/show/:id", utils.AuthMiddleware, suplierController.ShowData)
+		suplier.GET("/delete/:id", utils.AuthMiddleware, suplierController.DeleteData)
 	}
 
 	r.Run(":8080")
