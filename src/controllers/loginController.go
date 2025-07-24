@@ -25,7 +25,6 @@ func (lc *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	// Simulate login logic (e.g., checking credentials)
 	if loginData["username"] == "user" && loginData["password"] == "pass" {
 		c.JSON(http.StatusOK, gin.H{"status": "logged in"})
 	} else {

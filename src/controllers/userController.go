@@ -103,6 +103,11 @@ func (auth *UserController) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Request tidak valid"})
 		return
 	}
+	// passnya, errc := utils.Haspassword(user.Password)
+	// if errc != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "invalid has password tidak valid"})
+	// 	return
+	// }
 	resp, err := auth.repo.LoginAuth(user.Username, user.Password)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -112,6 +117,12 @@ func (auth *UserController) Login(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"error": "User tidak ditemukan", "username": resp.Username})
+	token, errtoket := utils.GenerateToken(resp.Username)
+	if errtoket != nil {
+		fmt.Printf("%+v\n", errtoket)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token", "err": errtoket})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": 200, "username": resp.Username, "token": token, "messages": "login berhasil authentikasi ."})
 
 }

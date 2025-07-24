@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	r.Use(utils.InterCeptor())
+	// r.Use(utils.InterCeptor())
 	barangController := controllers.NewBarangController()
 	purchasingController := controllers.NewPurchasingControllerInstance()
 	userController := controllers.NewUserController()
@@ -53,7 +53,7 @@ func main() {
 	r.POST("/login", userController.Login)
 	userRoutes := r.Group("/users")
 	{
-		userRoutes.GET("/list", userController.GetAllUsers)
+		userRoutes.GET("/list", utils.AuthMidleware, userController.GetAllUsers)
 		userRoutes.POST("/", userController.CreateUser)
 		userRoutes.POST("/create", userController.CreateUser)
 		userRoutes.GET("/:email", userController.GetUserByEmail)
@@ -62,7 +62,7 @@ func main() {
 
 	barangRoutes := r.Group("/barang")
 	{
-		barangRoutes.POST("/upload", barangController.UploadDfile)
+		barangRoutes.POST("/upload", utils.AuthMidleware, barangController.UploadDfile)
 		barangRoutes.GET("/list", barangController.GetSemuaKontol)
 		barangRoutes.GET("/show/:id", barangController.GetBarangByid)
 
