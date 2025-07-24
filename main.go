@@ -57,7 +57,6 @@ func main() {
 		userRoutes.POST("/create", userController.CreateUser)
 		userRoutes.GET("/:email", userController.GetUserByEmail)
 		userRoutes.GET("/show/:id", userController.ShowUser)
-
 	}
 
 	barangRoutes := r.Group("/barang")
