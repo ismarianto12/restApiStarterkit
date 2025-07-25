@@ -9,6 +9,7 @@ import (
 	"golangRest/src/utils"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -117,12 +118,41 @@ func (auth *UserController) Login(c *gin.Context) {
 		}
 		return
 	}
-	token, errtoket := utils.GenerateToken(resp.Username)
+	token, errtoket := utils.GenerateToken(resp.Username, resp.LevelId)
 	if errtoket != nil {
 		fmt.Printf("%+v\n", errtoket)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token", "err": errtoket})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": 200, "username": resp.Username, "token": token, "messages": "login berhasil authentikasi ."})
+
+}
+
+func EncpDe(c *gin.Context) {
+
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": "Authorization header required",
+			"code":  http.StatusUnauthorized,
+		})
+
+	}
+	// bearer prefix
+	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+	claims, err := utils.DecodeToken(tokenString)
+	if err != nil {
+		fmt.Print(err)
+		c.JSON(http.StatusOK, gin.H{
+			"data": "crot daalam", "erro": err.Error(),
+		})
+	}
+	// if userID, ok := claims.LevelId; ok {
+	// 	fmt.Println("User ID:", userID)
+	// }
+	c.JSON(http.StatusOK, gin.H{
+		"data":    claims.LevelID,
+		"message": "success loaded data claim paramaeter",
+	})
 
 }

@@ -134,6 +134,8 @@ func (bc *BarangController) GetAllData(c *gin.Context) {
 		{ID: 3, Name: "Keyboard", Price: 300000, Stock: 30},
 	}
 
+	fmt.Println(barangList[0])
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    barangList,
@@ -224,3 +226,23 @@ func (ptk *BarangController) GetBarangByid(c *gin.Context) {
 // 		"message": "Data dengan ID " + id + " berhasil diupdate (simulasi)",
 // 	})
 // }
+
+func (ptk *BarangController) DeferPante(c *gin.Context) {
+
+	id := c.Param("id")
+	idny, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": "true",
+			"messae":  "data",
+			"data":    idny,
+		})
+
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": "true",
+		"messae":  "data",
+		"data":    idny,
+	})
+
+}

@@ -58,6 +58,8 @@ func main() {
 		userRoutes.POST("/create", userController.CreateUser)
 		userRoutes.GET("/:email", userController.GetUserByEmail)
 		userRoutes.GET("/show/:id", userController.ShowUser)
+		userRoutes.GET("/userencp", controllers.EncpDe)
+
 	}
 
 	barangRoutes := r.Group("/barang")
@@ -76,6 +78,8 @@ func main() {
 		purcahsing.POST("/create", utils.AuthMiddleware, purchasingController.Store)
 		purcahsing.GET("/show/:id", utils.AuthMiddleware, purchasingController.Show)
 
+		purcahsing.GET("/defer/:id", utils.AuthMiddleware, purchasingController.Show)
+
 	}
 	suplier := r.Group("/suplier")
 	{
@@ -86,5 +90,10 @@ func main() {
 		suplier.GET("/delete/:id", utils.AuthMiddleware, suplierController.DeleteData)
 	}
 
+	stock := r.Group("/stock")
+	{
+		stock.GET("/all", utils.AuthMiddleware, controllers.NewStockControllerInstance().GetAllData)
+
+	}
 	r.Run(":8080")
 }
