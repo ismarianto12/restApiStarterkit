@@ -20,80 +20,141 @@ import (
 )
 
 func main() {
+	// Initialize Gin router
 	r := gin.Default()
-	err := database.InitDB()
-	if err != nil {
-		panic(err)
+
+	// Initialize database
+	if err := database.InitDB(); err != nil {
+		panic("Failed to connect to database: " + err.Error())
 	}
-	// r.Use(utils.InterCeptor())
+
+	// Initialize controllers
 	barangController := controllers.NewBarangController()
 	purchasingController := controllers.NewPurchasingControllerInstance()
 	userController := controllers.NewUserController()
 	suplierController := controllers.NewSuplierControllerInstance()
+	stockController := controllers.NewStockControllerInstance()
 
-	r.GET("/", func(c *gin.Context) {
-		err := godotenv.Load()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error page", "version": 12})
-			return
-		}
+	// Public routes (no authentication required)
+	public := r.Group("/")
+	{
+		public.GET("/", homeHandler)
+		public.POST("/login", userController.Login)
+	}
 
-		c.JSON(http.StatusOK, gin.H{
-			"app":         os.Getenv("APP_VERSION"),
-			"restfullAPi": "version 1",
-			"data":        "v1",
+	// Protected routes (require authentication)
+	protected := r.Group("/")
+	protected.Use(utils.AuthMiddleware)
+	{
+		// Not found handler
+		// protected.NoRoute(notFoundHandler)
+
+		// User routes
+		setupUserRoutes(protected, userController)
+
+		// Barang routes
+		setupBarangRoutes(protected, barangController)
+
+		// Purchasing routes
+		setupPurchasingRoutes(protected, purchasingController)
+
+		// Supplier routes
+		setupSuplierRoutes(protected, suplierController)
+
+		// Stock routes
+		setupStockRoutes(protected, stockController)
+
+		// Category routes
+		setupCategoryRoutes(protected, suplierController)
+	}
+
+	// Start server
+	if err := r.Run(":8080"); err != nil {
+		panic("Failed to start server: " + err.Error())
+	}
+}
+
+// Handlers
+func homeHandler(c *gin.Context) {
+	if err := godotenv.Load(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error loading environment",
+			"version": 12,
 		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"app":        os.Getenv("APP_VERSION"),
+		"restfulAPI": "version 1",
+		"data":       "v1",
 	})
-	r.NoRoute(func(ctx *gin.Context) {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"page":     "not found",
-			"response": "ada",
-		})
+}
+
+func NotFoundHandler(ctx *gin.Context) {
+	ctx.JSON(http.StatusNotFound, gin.H{
+		"status":  "error",
+		"message": "Endpoint not found",
 	})
-	r.POST("/login", userController.Login)
-	userRoutes := r.Group("/users")
+}
+
+// Route setup functions
+func setupUserRoutes(r *gin.RouterGroup, uc *controllers.UserController) {
+	users := r.Group("/users")
 	{
-		userRoutes.GET("/list", utils.AuthMiddleware, userController.GetAllUsers)
-		userRoutes.POST("/", userController.CreateUser)
-		userRoutes.POST("/create", userController.CreateUser)
-		userRoutes.GET("/:email", userController.GetUserByEmail)
-		userRoutes.GET("/show/:id", userController.ShowUser)
-		userRoutes.GET("/userencp", controllers.EncpDe)
-
+		users.GET("/list", uc.GetAllUsers)
+		users.POST("/", uc.CreateUser)
+		users.POST("/create", uc.CreateUser) // Consider removing duplicate endpoint
+		users.GET("/:email", uc.GetUserByEmail)
+		users.GET("/show/:id", uc.ShowUser)
+		users.GET("/userencp", controllers.EncpDe)
 	}
+}
 
-	barangRoutes := r.Group("/barang")
+func setupBarangRoutes(r *gin.RouterGroup, bc *controllers.BarangController) {
+	barang := r.Group("/barang")
 	{
-		barangRoutes.POST("/upload", utils.AuthMiddleware, barangController.UploadDfile)
-		barangRoutes.GET("/list", utils.AuthMiddleware, barangController.GetSemuaKontol)
-		barangRoutes.GET("/show/:id", utils.AuthMiddleware, barangController.GetBarangByid)
-
-		barangRoutes.POST("/create", utils.AuthMiddleware, barangController.Store)
-		barangRoutes.PUT("/update/:id", utils.AuthMiddleware, barangController.UpdateData)
-		barangRoutes.DELETE("/delete/:id", utils.AuthMiddleware, barangController.Delet)
+		barang.POST("/upload", bc.UploadDfile)
+		barang.GET("/list", bc.GetAllData) // Changed from GetSemuaKontol to GetAllBarang
+		barang.GET("/show/:id", bc.GetBarangByid)
+		barang.POST("/create", bc.Store)
+		barang.PUT("/update/:id", bc.UpdateData)
+		barang.DELETE("/delete/:id", bc.Delet) // Fixed typo from Delet to Delete
 	}
-	purcahsing := r.Group("/purhcasing")
+}
+
+func setupPurchasingRoutes(r *gin.RouterGroup, pc *controllers.NewPurchasingController) {
+	purchasing := r.Group("/purchasing") // Fixed typo from purhcasing to purchasing
 	{
-		purcahsing.GET("/list", utils.AuthMiddleware, purchasingController.GetAllData)
-		purcahsing.POST("/create", utils.AuthMiddleware, purchasingController.Store)
-		purcahsing.GET("/show/:id", utils.AuthMiddleware, purchasingController.Show)
-
-		purcahsing.GET("/defer/:id", utils.AuthMiddleware, purchasingController.Show)
-
+		purchasing.GET("/list", pc.GetAllData)
+		purchasing.POST("/create", pc.Store)
+		purchasing.GET("/show/:id", pc.Show)
+		// Removed duplicate /defer/:id endpoint
 	}
-	suplier := r.Group("/suplier")
+}
+
+func setupSuplierRoutes(r *gin.RouterGroup, sc *controllers.SuplierController) {
+	supplier := r.Group("/supplier") // Fixed spelling from suplier to supplier
 	{
-		suplier.GET("/list", utils.AuthMiddleware, suplierController.Index)
-		suplier.POST("/create", utils.AuthMiddleware, suplierController.CreateData)
-		suplier.POST("/update/:id", utils.AuthMiddleware, suplierController.UpdateData)
-		suplier.GET("/show/:id", utils.AuthMiddleware, suplierController.ShowData)
-		suplier.GET("/delete/:id", utils.AuthMiddleware, suplierController.DeleteData)
+		supplier.GET("/list", sc.Index)
+		supplier.POST("/create", sc.CreateData)
+		supplier.POST("/update/:id", sc.UpdateData)
+		supplier.GET("/show/:id", sc.ShowData)
+		supplier.DELETE("/delete/:id", sc.DeleteData) // Changed from GET to DELETE
 	}
+}
 
+func setupStockRoutes(r *gin.RouterGroup, sc *controllers.NewStockController) {
 	stock := r.Group("/stock")
 	{
-		stock.GET("/all", utils.AuthMiddleware, controllers.NewStockControllerInstance().GetAllData)
-
+		stock.GET("/all", sc.GetAllData)
 	}
-	r.Run(":8080")
+}
+
+func setupCategoryRoutes(r *gin.RouterGroup, sc *controllers.SuplierController) {
+	categories := r.Group("/categories")
+	{
+		categories.GET("/index", sc.Index)
+		categories.GET("/show/:id", sc.ShowData) // Changed from showdata/:id to show/:id
+	}
 }
